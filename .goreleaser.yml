@@ -105,6 +105,7 @@ archives:
       - goos: windows
         format: zip
 
+# TODO(joem): multi-arch docker image: https://goreleaser.com/cookbooks/multi-platform-docker-images/
 dockers:
   - dockerfile: Dockerfile
     image_templates:
