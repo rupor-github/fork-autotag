@@ -1,9 +1,8 @@
 AutoTag
 =======
 
-[![CI](https://github.com/pantheon-systems/autotag/actions/workflows/workflow.yml/badge.svg)](https://github.com/pantheon-systems/autotag/actions/workflows/workflow.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pantheon-systems/autotag)](https://goreportcard.com/report/github.com/pantheon-systems/autotag)
-[![Actively Maintained](https://img.shields.io/badge/Pantheon-Actively_Maintained-yellow?logo=pantheon&color=FFDC28)](https://pantheon.io/docs/oss-support-levels#actively-maintained-support)
+[![CI](https://github.com/autotag-dev/autotag/actions/workflows/workflow.yml/badge.svg)](https://github.com/autotag-dev/autotag/actions/workflows/workflow.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/autotag-dev/autotag)](https://goreportcard.com/report/github.com/autotag-dev/autotag)
 
 
 Automatically increment version tags to a git repo based on commit messages.
@@ -50,9 +49,9 @@ Installing
 
 | Arch  | Images                                                           |
 | ----- | ---------------------------------------------------------------- |
-| amd64 | `quay.io/pantheon-public/autotag:latest`, `vX.Y.Z`, `vX.Y`, `vX` |
+| amd64 | `ghcr.io/autotag-dev/autotag:latest`, `vX.Y.Z`, `vX.Y`, `vX` |
 
-[releases]: https://github.com/pantheon-systems/autotag/releases/latest
+[releases]: https://github.com/autotag-dev/autotag/releases/latest
 
 ### One-liner
 
@@ -289,7 +288,7 @@ Assuming you have Go 1.5+ installed you can checkout and run make deps build to 
 at `./autotag/autotag`.
 
 ```console
-git clone git@github.com:pantheon-systems/autotag.git
+git clone https://github.com/autotag-dev/autotag.git
 
 cd autotag
 
