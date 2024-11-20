@@ -55,6 +55,8 @@ type testRepoSetup struct {
 // testing the autotag package.
 // You must call cleanupTestRepo(t, r.repo) to remove the temporary directory after running tests.
 func newTestRepo(t *testing.T, setup testRepoSetup) GitRepo {
+	t.Helper()
+
 	tr := createTestRepo(t, setup.branch)
 
 	repo, err := git.Open(tr)
@@ -62,7 +64,7 @@ func newTestRepo(t *testing.T, setup testRepoSetup) GitRepo {
 
 	branch := setup.branch
 	if branch == "" {
-		branch = "master"
+		branch = "main"
 	}
 
 	tag := setup.initialTag
@@ -99,7 +101,6 @@ func newTestRepo(t *testing.T, setup testRepoSetup) GitRepo {
 		Scheme:                    setup.scheme,
 		Prefix:                    !setup.disablePrefix,
 	})
-
 	if err != nil {
 		t.Fatal("Error creating repo: ", err)
 	}
@@ -179,7 +180,7 @@ func TestValidateConfig(t *testing.T) {
 }
 
 func TestNewRepo(t *testing.T) {
-	var newRepoTests = []struct {
+	newRepoTests := []struct {
 		createBranch  string
 		requestBranch string
 		expectBranch  string
@@ -203,7 +204,6 @@ func TestNewRepo(t *testing.T) {
 			Branch:   tt.requestBranch,
 			RepoPath: repo.Path(),
 		})
-
 		if err != nil {
 			t.Fatal("Error creating repo: ", err)
 		}
@@ -243,7 +243,7 @@ func TestNewRepoMainAndMaster(t *testing.T) {
 	makeTag(repo, "v0.2.1")
 
 	// check results
-	var newRepoTests = []struct {
+	newRepoTests := []struct {
 		requestBranch string
 		expectBranch  string
 	}{
@@ -257,7 +257,6 @@ func TestNewRepoMainAndMaster(t *testing.T) {
 			Branch:   tt.requestBranch,
 			RepoPath: repo.Path(),
 		})
-
 		if err != nil {
 			t.Fatal("Error creating repo: ", err)
 		}
