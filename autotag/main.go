@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/autotag-dev/autotag"
 	"github.com/jessevdk/go-flags"
-	"github.com/pantheon-systems/autotag"
 )
 
 // Options holds the CLI args

@@ -105,24 +105,10 @@ archives:
       - goos: windows
         format: zip
 
-# homebrew
-# brews:
-#   - ids:
-#       - archives
-#     github:
-#       owner: pantheon-systems
-#       name: homebrew-taps
-#     commit_author:
-#       name: pantheon releases
-#       email: infrastructure@pantheon.io
-#     folder: Formula
-#     homepage: "https://github.com/pantheon-systems/autotag"
-#     description: "Automatically add version tags to a git repo based on commit messages."
-
 dockers:
   - dockerfile: Dockerfile
     image_templates:
-      - "quay.io/pantheon-public/autotag:{{ .Tag }}" # v1.0.0
-      - "quay.io/pantheon-public/autotag:v{{ .Major }}" # v1
-      - "quay.io/pantheon-public/autotag:v{{ .Major }}.{{ .Minor }}" # v1.0
-      - "quay.io/pantheon-public/autotag:latest"
+      - "ghcr.io/autotag-dev/autotag:{{ .Tag }}" # v1.0.0
+      - "ghcr.io/autotag-dev/autotag:v{{ .Major }}" # v1
+      - "ghcr.io/autotag-dev/autotag:v{{ .Major }}.{{ .Minor }}" # v1.0
+      - "ghcr.io/autotag-dev/autotag:latest"
