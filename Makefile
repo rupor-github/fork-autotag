@@ -1,13 +1,22 @@
 APP := autotag
 
-include scripts/make/common.mk
-include scripts/make/common-go.mk
+.PHONY: lint build test cov run
 
-build::
-	CGO_ENABLED=0 go build -o $(APP)/$(APP)  $(APP)/*.go
+default: build
+
+build:
+	CGO_ENABLED=0 go build -trimpath -v -o $(APP)/$(APP)  $(APP)/*.go
+
+lint:
+	golangci-lint run -v ./...
+
+test:
+	go test -cover -coverprofile=cover.out -v ./...
+
+cov:
+	@echo "--- Coverage:"
+	go tool cover -html=cover.out
+	go tool cover -func cover.out
 
 snapshot:
 	@goreleaser --rm-dist --snapshot --debug
-
-.PHONY:: test-gha
-test-gha:: test-go ## for running unit tests on GitHub Actions

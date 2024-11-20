@@ -1,62 +1,52 @@
 name: CI
+
 on:
   push:
     branches:
-      - 'main'
+      - main
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v2
-
-      - name: Restore Go Modules Cache
-        uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Environment Config
-        run: |
-          echo "$HOME/go/bin" >> $GITHUB_PATH
-
-      - name: Download Dependencies
-        run: |
-          go mod download
+        uses: actions/setup-go@v5
 
       - name: Git Config for Unit Tests
         run: |
           git config --global user.email ci
           git config --global user.name ci
+          git config --global init.defaultBranch main
 
       - name: Run Unit Tests
         run: |
-          make test-gha
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Run Linter
-        uses: golangci/golangci-lint-action@v2
+          make test
 
   goreleaser-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Check goreleaser's Configuration
-        uses: goreleaser/goreleaser-action@v2
+        uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
           args: check
