@@ -1,7 +1,7 @@
 AutoTag
 =======
 
-[![CI](https://github.com/autotag-dev/autotag/actions/workflows/workflow.yml/badge.svg)](https://github.com/autotag-dev/autotag/actions/workflows/workflow.yml)
+[![CI](https://github.com/autotag-dev/autotag/actions/workflows/CI.yml/badge.svg)](https://github.com/autotag-dev/autotag/actions/workflows/CI.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/autotag-dev/autotag)](https://goreportcard.com/report/github.com/autotag-dev/autotag)
 
 Automatically increment version tags to a git repo based on commit messages.
