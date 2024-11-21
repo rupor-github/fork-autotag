@@ -4,26 +4,7 @@ AutoTag
 [![CI](https://github.com/autotag-dev/autotag/actions/workflows/workflow.yml/badge.svg)](https://github.com/autotag-dev/autotag/actions/workflows/workflow.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/autotag-dev/autotag)](https://goreportcard.com/report/github.com/autotag-dev/autotag)
 
-
 Automatically increment version tags to a git repo based on commit messages.
-
-- [AutoTag](#autotag)
-  - [Dependencies](#dependencies)
-  - [Installing](#installing)
-    - [Pre-built binaries](#pre-built-binaries)
-    - [Docker images](#docker-images)
-    - [One-liner](#one-liner)
-  - [Usage](#usage)
-    - [Scheme: Autotag (default)](#scheme-autotag-default)
-    - [Scheme: Conventional Commits](#scheme-conventional-commits)
-    - [Pre-Release Tags](#pre-release-tags)
-    - [Build metadata](#build-metadata)
-  - [Examples](#examples)
-    - [Goreleaser](#goreleaser)
-  - [Troubleshooting](#troubleshooting)
-    - [error getting head commit: object does not exist [id: refs/heads/master, rel_path: ]](#error-getting-head-commit-object-does-not-exist-id-refsheadsmaster-rel_path-)
-  - [Build from Source](#build-from-source)
-  - [Release information](#release-information)
 
 Dependencies
 ------------
