@@ -109,10 +109,10 @@ archives:
         format: zip
 
 # TODO(joem): multi-arch docker image: https://goreleaser.com/cookbooks/multi-platform-docker-images/
-dockers:
-  - dockerfile: Dockerfile
-    image_templates:
-      - "ghcr.io/autotag-dev/autotag:{{ .Tag }}" # v1.0.0
-      - "ghcr.io/autotag-dev/autotag:v{{ .Major }}" # v1
-      - "ghcr.io/autotag-dev/autotag:v{{ .Major }}.{{ .Minor }}" # v1.0
-      - "ghcr.io/autotag-dev/autotag:latest"
+# dockers:
+#   - dockerfile: Dockerfile
+#     image_templates:
+#       - "ghcr.io/autotag-dev/autotag:{{ .Tag }}" # v1.0.0
+#       - "ghcr.io/autotag-dev/autotag:v{{ .Major }}" # v1
+#       - "ghcr.io/autotag-dev/autotag:v{{ .Major }}.{{ .Minor }}" # v1.0
+#       - "ghcr.io/autotag-dev/autotag:latest"
