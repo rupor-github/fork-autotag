@@ -85,6 +85,19 @@ type GitRepoConfig struct {
 	// 		v1.2.3-pre.1499308568
 	PreReleaseTimestampLayout string
 
+	// PreReleaseAttempt is the optional value that's used to appent a number to the git tag.
+	// Negative value must be provided if not used (backward compatibilty requirement).
+	// If PreReleaseName is an empty string, attempt will be appended
+	// directly to the SemVer tag:
+	//
+	// 		v1.2.3-0
+	//
+	// Assuming PreReleaseName is set to `pre`, the timestamp is appended to
+	// that value separated by a period (`.`):
+	//
+	// 		v1.2.3-pre.0
+	PreReleaseAttempt int
+
 	// BuildMetadata is an optional string appended by a plus sign and a series of dot separated
 	// identifiers immediately following the patch or pre-release version. Identifiers MUST comprise
 	// only ASCII alphanumerics and hyphen [0-9A-Za-z-]. Identifiers MUST NOT be empty. Build metadata
@@ -111,6 +124,15 @@ type GitRepoConfig struct {
 
 	// Prefix prepends literal 'v' to the tag, eg: v1.0.0. Enabled by default
 	Prefix bool
+
+	// Check worktree status
+	Check bool
+
+	// Automatically push the new tag to the remote origin
+	Push bool
+
+	// Remote name to push the tag to
+	Remote string
 }
 
 // GitRepo represents a repository we want to run actions against
@@ -125,11 +147,14 @@ type GitRepo struct {
 
 	preReleaseName            string
 	preReleaseTimestampLayout string
+	preReleaseAttempt         int
 	buildMetadata             string
 
 	scheme string
 
 	prefix bool
+	push   bool
+	remote string
 }
 
 // NewRepo is a constructor for a repo object, parsing the tags that exist
@@ -157,27 +182,21 @@ func NewRepo(cfg GitRepoConfig) (*GitRepo, error) {
 		return nil, err
 	}
 
+	if cfg.Check {
+		log.Println("Checking state of repository worktree")
+		if err := checkRepoState(gitDirPath); err != nil {
+			return nil, err
+		}
+	}
+
+	// use the current worktree branch as the default
 	if cfg.Branch == "" {
-		branches, err := repo.Branches()
+		currBranch, err := repo.RevParse("HEAD", git.RevParseOptions{CommandOptions: git.CommandOptions{Args: []string{"--abbrev-ref"}}})
 		if err != nil {
 			return nil, err
 		}
-
-		// Locate main or master branch.
-		// If main is found, stop searching and use it.
-		// If master is found first, store it, but keep searching for main.
-		for _, b := range branches {
-			if b == "main" {
-				cfg.Branch = "main"
-				break
-			}
-			if b == "master" {
-				cfg.Branch = "master"
-			}
-		}
-		if cfg.Branch == "" {
-			return nil, fmt.Errorf("no main or master branch found")
-		}
+		log.Println("Current branch is", currBranch)
+		cfg.Branch = currBranch
 	}
 
 	r := &GitRepo{
@@ -185,9 +204,12 @@ func NewRepo(cfg GitRepoConfig) (*GitRepo, error) {
 		branch:                    cfg.Branch,
 		preReleaseName:            cfg.PreReleaseName,
 		preReleaseTimestampLayout: cfg.PreReleaseTimestampLayout,
+		preReleaseAttempt:         cfg.PreReleaseAttempt,
 		buildMetadata:             cfg.BuildMetadata,
 		scheme:                    cfg.Scheme,
 		prefix:                    cfg.Prefix,
+		push:                      cfg.Push,
+		remote:                    cfg.Remote,
 	}
 
 	err = r.parseTags()
@@ -211,6 +233,10 @@ func validateConfig(cfg GitRepoConfig) error {
 		return fmt.Errorf("'%s' is not valid SemVer pre-release name", cfg.PreReleaseName)
 	}
 
+	if cfg.PreReleaseAttempt >= 0 && cfg.PreReleaseTimestampLayout != "" {
+		return fmt.Errorf("prerelease cannot have both attempt (%d) and timestamp (%s) defined, use one of them", cfg.PreReleaseAttempt, cfg.PreReleaseTimestampLayout)
+	}
+
 	switch cfg.PreReleaseTimestampLayout {
 	case "", "datetime", "epoch":
 		// nothing -- valid values
@@ -228,6 +254,26 @@ func generateGitDirPath(repoPath string) (string, error) {
 	}
 
 	return filepath.Join(absolutePath, ".git"), nil
+}
+
+// check if repo is in a good state for tagging
+func checkRepoState(repoPath string) error {
+	path := filepath.Dir(repoPath)
+	stdout, err := git.NewCommand("ls-files", "--other", "--error-unmatch", "--exclude-standard").RunInDir(path)
+	if err != nil || len(stdout) > 0 {
+		return errors.New("untracked files detected")
+	}
+	if _, err := git.NewCommand("diff-files", "--quiet", "--").RunInDir(path); err != nil {
+		return errors.New("unstaged changes detected")
+	}
+	if _, err := git.NewCommand("diff-index", "--cached", "--quiet", "HEAD", "--").RunInDir(path); err != nil {
+		return errors.New("uncommited changes detected")
+	}
+	stdout, err = git.NewCommand("branch", "-r", "--contains", "HEAD").RunInDir(path)
+	if err != nil || len(bytes.Split(stdout, []byte("\n"))) == 0 {
+		return errors.New("commit at HEAD is not present on remote")
+	}
+	return nil
 }
 
 // Parse tags on repo, sort them, and store the most recent revision in the repo object
@@ -324,8 +370,8 @@ func (r *GitRepo) retrieveBranchInfo() error {
 	return nil
 }
 
-func preReleaseVersion(v *version.Version, name, tsLayout string) (*version.Version, error) {
-	if len(name) == 0 && len(tsLayout) == 0 {
+func preReleaseVersion(v *version.Version, name, tsLayout string, attempt int) (*version.Version, error) {
+	if len(name) == 0 && len(tsLayout) == 0 && attempt < 0 {
 		return v, nil
 	}
 
@@ -362,6 +408,17 @@ func preReleaseVersion(v *version.Version, name, tsLayout string) (*version.Vers
 		}
 
 		if _, err := buf.WriteString(timestamp); err != nil {
+			return nil, err
+		}
+	}
+
+	if attempt >= 0 {
+		if buf.Len() > 0 {
+			if _, err := buf.WriteString("."); err != nil {
+				return nil, err
+			}
+		}
+		if _, err := buf.WriteString(strconv.Itoa(attempt)); err != nil {
 			return nil, err
 		}
 	}
@@ -417,9 +474,9 @@ func (r *GitRepo) calcVersion() error {
 		}
 	}
 
-	// append pre-release-name and/or pre-release-timestamp to the version
-	if len(r.preReleaseName) > 0 || len(r.preReleaseTimestampLayout) > 0 {
-		if r.newVersion, err = preReleaseVersion(r.newVersion, r.preReleaseName, r.preReleaseTimestampLayout); err != nil {
+	// append pre-release-name and/or pre-release-timestamp and/or pre-release-attempt to the version
+	if len(r.preReleaseName) > 0 || len(r.preReleaseTimestampLayout) > 0 || r.preReleaseAttempt >= 0 {
+		if r.newVersion, err = preReleaseVersion(r.newVersion, r.preReleaseName, r.preReleaseTimestampLayout, r.preReleaseAttempt); err != nil {
 			return err
 		}
 	}
@@ -449,7 +506,15 @@ func (r *GitRepo) tagNewVersion() error {
 	log.Println("Writing Tag", tagName)
 	err := r.repo.CreateTag(tagName, r.branchID)
 	if err != nil {
-		return fmt.Errorf("error creating tag: %s", err.Error())
+		return fmt.Errorf("error creating tag: %w", err)
+	}
+
+	if r.push {
+		log.Println("Pushing Tag", tagName)
+		_, err = git.NewCommand("push", r.remote, "refs/tags/"+tagName).RunInDir(r.repo.Path())
+		if err != nil {
+			return fmt.Errorf("error pushing tag: %w", err)
+		}
 	}
 	return nil
 }

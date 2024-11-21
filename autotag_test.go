@@ -57,15 +57,15 @@ type testRepoSetup struct {
 func newTestRepo(t *testing.T, setup testRepoSetup) GitRepo {
 	t.Helper()
 
-	tr := createTestRepo(t, setup.branch)
-
-	repo, err := git.Open(tr)
-	checkFatal(t, err)
-
 	branch := setup.branch
 	if branch == "" {
 		branch = "main"
 	}
+
+	tr := createTestRepo(t, branch)
+
+	repo, err := git.Open(tr)
+	checkFatal(t, err)
 
 	tag := setup.initialTag
 	if setup.initialTag == "" {
@@ -97,6 +97,7 @@ func newTestRepo(t *testing.T, setup testRepoSetup) GitRepo {
 		Branch:                    branch,
 		PreReleaseName:            setup.preReleaseName,
 		PreReleaseTimestampLayout: setup.preReleaseTimestampLayout,
+		PreReleaseAttempt:         -1,
 		BuildMetadata:             setup.buildMetadata,
 		Scheme:                    setup.scheme,
 		Prefix:                    !setup.disablePrefix,
@@ -160,6 +161,7 @@ func TestValidateConfig(t *testing.T) {
 				Branch:                    "master",
 				PreReleaseName:            "foo",
 				PreReleaseTimestampLayout: "epoch",
+				PreReleaseAttempt:         -1,
 				BuildMetadata:             "g12345678",
 				Prefix:                    true,
 			},
