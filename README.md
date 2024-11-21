@@ -6,6 +6,17 @@ AutoTag
 
 Automatically increment version tags to a git repo based on commit messages.
 
+Changes in the fork
+-------------------
+
+- Pick up current repo branch as a default, rather that assuming main/master.
+- Add sanity check on repository state before creating tag (to ignore use -C).
+- Ability to set attempt number (positive integer to be added to pre-release) (-A number).
+- Ability to push new tag to remote (-P, -r remote).
+- With -n print out full tag, not numerical representation of it (with "v" prefix if requested).
+- Fixing tests (related to "master" to "main" changes).
+- Do not produce and publish docker image (do not want to mess with registry)
+
 Dependencies
 ------------
 
