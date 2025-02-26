@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/jessevdk/go-flags"
+	flags "github.com/jessevdk/go-flags"
 
-	"github.com/rupor-github/autotag"
+	autotag "github.com/rupor-github/fork-autotag"
 )
 
 // Options holds the CLI args

@@ -1,10 +1,10 @@
-module github.com/rupor-github/autotag
+module github.com/rupor-github/fork-autotag
 
-go 1.23
+go 1.24.0
 
 require (
 	github.com/alecthomas/assert v1.0.0
-	github.com/gogs/git-module v1.8.3
+	github.com/gogs/git-module v1.8.4
 	github.com/hashicorp/go-version v1.7.0
 	github.com/jessevdk/go-flags v1.6.1
 )
@@ -15,5 +15,5 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 )
