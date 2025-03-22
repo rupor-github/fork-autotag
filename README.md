@@ -12,6 +12,7 @@ Changes in the fork
 - Pick up current repo branch as a default, rather that assuming main/master.
 - Add sanity check on repository state before creating tag (to ignore use -C).
 - Ability to set attempt number (positive integer to be added to pre-release) (-A number).
+  NOTE: when attempt is specified autotag will not bump "patch" version number automatically, will use last version instead.
 - Ability to push new tag to remote (-P, -r remote).
 - With -n print out full tag, not numerical representation of it (with "v" prefix if requested).
 - Fixing tests (related to "master" to "main" changes).

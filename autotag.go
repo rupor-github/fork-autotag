@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gogs/git-module"
-	"github.com/hashicorp/go-version"
+	git "github.com/gogs/git-module"
+	version "github.com/hashicorp/go-version"
 )
 
 const (
@@ -467,8 +467,8 @@ func (r *GitRepo) calcVersion() error {
 		}
 	}
 
-	// if there is no movement on the version from commits, bump patch
-	if r.newVersion.Equal(r.currentVersion) {
+	// if there is no movement on the version from commits and no attempt has been specified, bump patch
+	if r.newVersion.Equal(r.currentVersion) && r.preReleaseAttempt < 0 {
 		if r.newVersion, err = patchBumper.bump(r.currentVersion); err != nil {
 			return err
 		}
@@ -491,7 +491,7 @@ func (r *GitRepo) calcVersion() error {
 	return nil
 }
 
-// AutoTag applies the new version tag thats calculated
+// AutoTag applies the new version tag that's calculated
 func (r *GitRepo) AutoTag() error {
 	return r.tagNewVersion()
 }
